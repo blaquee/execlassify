@@ -33,35 +33,47 @@ def is_packed(pe_file):
             return True, str(matches[0])
 
 
+def process_overlay(pe):
+    pass
+
+
 def main():
 
     # log_file = os.path.join(config.LOGS_FOLDER, "stdout.log")
     # sys.stdout = open(log_file, "a")
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--dir", help="Directory containing PE Files", default=None)
+    parser.add_argument("-d", "--dir", help="Directory containing PE Files", default=None, required=True)
     parser.add_argument("-u", "--unpack", help="Automatically unpack UPX packed files", action="store_false")
-    parser.add_argument("-t", "--tenant", help="Tenant for current samples corupus", required=True)
+    parser.add_argument("-t", "--tenant", help="Tenant for current samples corupus", required=False)
 
     args = parser.parse_args()
     packed_files = dict()
 
-    if args.dir:
-        if os.path.isdir(args.dir):
-            for file in abs_file_paths(args.dir):
-                pe = pefile.PE(file, fast_load=True)
-                print "File {}".format(file)
-                res,match = is_packed(pe)
-                if res:
-                    packed_files[file] = match
-
+    # Set up Results folder
     results_path = config.RESULTS_FOLDER
     if not os.path.exists(results_path):
         os.makedirs(results_path)
 
-    tenant_path = os.path.join(results_path, args.tenant)
-    if not os.path.exists(tenant_path):
-        os.makedirs(tenant_path)
+    if args.tenant:
+        tenant_path = os.path.join(results_path, args.tenant)
+        if not os.path.exists(tenant_path):
+            os.makedirs(tenant_path)
+
+    if args.dir:
+        if os.path.isdir(args.dir):
+            for files in abs_file_paths(args.dir):
+
+                try:
+                    pe = pefile.PE(files, fast_load=True)
+                except:
+                    print "Error loading {}..is it a PE?".format(files)
+                    continue
+
+                print "File {}".format(files)
+                res,match = is_packed(pe)
+                if res:
+                    packed_files[files] = match
 
     for k,v in packed_files.iteritems():
         print "{} -> {}".format(k, v)
