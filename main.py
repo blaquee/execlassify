@@ -3,12 +3,18 @@ import sys
 import pefile
 import peutils
 import argparse
+import time
+from shutil import copyfile, copy, copy2
 
 import config
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
 signatures_file = os.path.join(config.FILES_FOLDER, "userDB.txt")
 sig = peutils.SignatureDatabase(signatures_file)
+
+def make_directory(dir):
+    if not os.path.exists(dir):
+        os.makedirs(dir)
 
 
 def abs_file_paths(directory):
@@ -32,9 +38,16 @@ def is_packed(pe_file):
         if len(matches) > 0:
             return True, str(matches[0])
 
+# currently only checks for overlay. NullSoft also seems to always
+# have a section named .ndata with a VirtualSize of 0x00008000, but have to
+# get a larger sample set to be sure
+def process_overlay(pe_file):
 
-def process_overlay(pe):
-    pass
+    if not pe_file.get_overlay():
+        return False
+
+    return True
+
 
 
 def main():
@@ -52,30 +65,39 @@ def main():
 
     # Set up Results folder
     results_path = config.RESULTS_FOLDER
-    if not os.path.exists(results_path):
-        os.makedirs(results_path)
+    make_directory(results_path)
 
     if args.tenant:
-        tenant_path = os.path.join(results_path, args.tenant)
-        if not os.path.exists(tenant_path):
-            os.makedirs(tenant_path)
+        processing_path = os.path.join(results_path, args.tenant)
+        make_directory(processing_path)
+    else:
+        processing_path = os.path.join(results_path, time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime()))
+        make_directory(processing_path)
 
-    if args.dir:
-        if os.path.isdir(args.dir):
-            for files in abs_file_paths(args.dir):
+    # directory sanity check
+    if os.path.isdir(args.dir):
+        for files in abs_file_paths(args.dir):
+            try:
+                pe = pefile.PE(files, fast_load=True)
+            except:
+                print "Error loading {}..is it a PE?".format(files)
+                continue
+            print "File {}".format(files)
+            res,match = is_packed(pe)
+            # if file packed, place in packed folder
+            if res:
+                packed_files[files] = match
 
-                try:
-                    pe = pefile.PE(files, fast_load=True)
-                except:
-                    print "Error loading {}..is it a PE?".format(files)
-                    continue
-
-                print "File {}".format(files)
-                res,match = is_packed(pe)
-                if res:
-                    packed_files[files] = match
+    packed_path = os.path.join(processing_path, "packed")
+    if not os.path.exists(packed_path):
+        os.makedirs(packed_path)
 
     for k,v in packed_files.iteritems():
+        # copy files to packed folder
+        try:
+            copy2(k, packed_path)
+        except:
+            pass
         print "{} -> {}".format(k, v)
 
 
