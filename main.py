@@ -12,6 +12,7 @@ cur_dir = os.path.dirname(os.path.abspath(__file__))
 signatures_file = os.path.join(config.FILES_FOLDER, "userDB.txt")
 sig = peutils.SignatureDatabase(signatures_file)
 
+
 def make_directory(dir):
     if not os.path.exists(dir):
         os.makedirs(dir)
@@ -38,20 +39,18 @@ def is_packed(pe_file):
         if len(matches) > 0:
             return True, str(matches[0])
 
+
 # currently only checks for overlay. NullSoft also seems to always
 # have a section named .ndata with a VirtualSize of 0x00008000, but have to
 # get a larger sample set to be sure
-def process_overlay(pe_file):
-
-    if not pe_file.get_overlay():
+def is_overlay(pe_file):
+    if not pe_file.get_overlay_data_start_offset():
         return False
 
     return True
 
 
-
 def main():
-
     # log_file = os.path.join(config.LOGS_FOLDER, "stdout.log")
     # sys.stdout = open(log_file, "a")
 
@@ -74,6 +73,12 @@ def main():
         processing_path = os.path.join(results_path, time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime()))
         make_directory(processing_path)
 
+    packed_path = os.path.join(processing_path, "packed")
+    make_directory(packed_path)
+
+    installer_path = os.path.join(processing_path, "installers")
+    make_directory(installer_path)
+
     # directory sanity check
     if os.path.isdir(args.dir):
         for files in abs_file_paths(args.dir):
@@ -83,16 +88,19 @@ def main():
                 print "Error loading {}..is it a PE?".format(files)
                 continue
             print "File {}".format(files)
-            res,match = is_packed(pe)
+            res, match = is_packed(pe)
+
+            # overlay, possible setup file
+            if is_overlay(pe):
+                try:
+                    copy2(pe, installer_path)
+                except:
+                    pass
             # if file packed, place in packed folder
             if res:
                 packed_files[files] = match
 
-    packed_path = os.path.join(processing_path, "packed")
-    if not os.path.exists(packed_path):
-        os.makedirs(packed_path)
-
-    for k,v in packed_files.iteritems():
+    for k, v in packed_files.iteritems():
         # copy files to packed folder
         try:
             copy2(k, packed_path)
