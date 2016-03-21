@@ -44,10 +44,10 @@ def is_packed(pe_file):
 # have a section named .ndata with a VirtualSize of 0x00008000, but have to
 # get a larger sample set to be sure
 def is_overlay(pe_file):
-    if not pe_file.get_overlay_data_start_offset():
-        return False
+    if pe_file.get_overlay_data_start_offset() > 0:
+        return True
 
-    return True
+    return False
 
 
 def main():
@@ -61,6 +61,7 @@ def main():
 
     args = parser.parse_args()
     packed_files = dict()
+    threat_info = dict()
 
     # Set up Results folder
     results_path = config.RESULTS_FOLDER
@@ -87,17 +88,21 @@ def main():
             except:
                 print "Error loading {}..is it a PE?".format(files)
                 continue
-            print "File {}".format(files)
-            res, match = is_packed(pe)
 
+            threat_info[files] = list()
             # overlay, possible setup file
             if is_overlay(pe):
+                threat_info[files].append("overlay")
                 try:
                     copy2(pe, installer_path)
                 except:
                     pass
-            # if file packed, place in packed folder
+
+            res, match = is_packed(pe)
+
+            # if file packed, place in packed dictionary
             if res:
+                threat_info[files].append(match)
                 packed_files[files] = match
 
     for k, v in packed_files.iteritems():
@@ -106,7 +111,7 @@ def main():
             copy2(k, packed_path)
         except:
             pass
-        print "{} -> {}".format(k, v)
+        print "Files processed"
 
 
 if __name__ == '__main__':
