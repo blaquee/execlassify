@@ -39,6 +39,9 @@ def is_packed(pe_file):
         if len(matches) > 0:
             return True, str(matches[0])
 
+def is_nullsoft(pe_file):
+    pass
+
 
 # currently only checks for overlay. NullSoft also seems to always
 # have a section named .ndata with a VirtualSize of 0x00008000, but have to
