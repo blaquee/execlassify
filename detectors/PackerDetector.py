@@ -14,5 +14,14 @@ class PackerDetector(Detector):
         self.sig = peutils.SignatureDatabase(signatures_file)
 
     def detect(self):
+
+        result = dict()
         pe = pefile.PE(self.file_data, fast_load=True)
         matches = self.sig.match(pe, ep_only=True)
+
+        if not matches:
+            return result
+
+        if len(matches) > 0:
+            result['Result'] = str(matches[0])
+            result['Name'] = 'PackerDetector'
