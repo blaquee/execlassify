@@ -125,7 +125,7 @@ def main():
     if os.path.isdir(args.dir):
         for files in abs_file_paths(args.dir):
             try:
-                # load all PE files in directory
+                # load all PE files in directory and populate our input file list
                 file_list.append(pefile.PE(files, fast_load=True))
             except:
                 print "Error loading {}..is it a PE?".format(files)
@@ -133,8 +133,21 @@ def main():
 
             threat_info[files] = list()
 
+        # detectors populate the threat_info dictionary with results.
+        # The results is a list of dictionaries the attempt to explain what was detected.
+        '''
+            input -> [
+                        detector -> {   'Name': Name of Detector,
+                                        'Result' : [ list of results returned by detector],
+                                        'Sub-Folder': Optional string to organize file in result subfolder (might remove this)
+                                        ,etc...
+                                    }
+                    ]
+        '''
+
         for f in file_list:
             for name in detector_plugins:
+                # Call the detectors constructor
                 detector = detector_plugins[name](f)
 
                 # TODO: Add can_process method to check if detector can process current input
