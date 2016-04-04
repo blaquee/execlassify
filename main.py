@@ -90,7 +90,6 @@ def main():
 
     args = parser.parse_args()
 
-    packed_files = dict()
     threat_info = dict()
     file_list = list()
     detector_plugins = list()
@@ -114,11 +113,13 @@ def main():
     detector_results = os.path.join(processing_path, "detectors")
     make_directory(detector_results)
 
+    '''
     packed_path = os.path.join(processing_path, "packed")
     make_directory(packed_path)
 
     installer_path = os.path.join(processing_path, "installers")
     make_directory(installer_path)
+    '''
 
     # directory sanity check
     if os.path.isdir(args.dir):
@@ -141,7 +142,7 @@ def main():
                 if not result:
                     continue
                 threat_info[f].append(result)
-
+        '''
         # overlay, possible setup file
         for f in file_list:
             if is_overlay(f):
@@ -155,14 +156,10 @@ def main():
             if res:
                 threat_info[files].append(match)
                 packed_files[files] = match
+        '''
 
     for k, v in threat_info.iteritems():
-        # copy files to packed folder
-        try:
-            copy2(k, packed_path)
-        except:
-            pass
-        print "Files processed"
+        pass
 
 
 if __name__ == '__main__':
