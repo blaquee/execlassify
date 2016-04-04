@@ -14,5 +14,7 @@ sys.path.append(LOGS_FOLDER)
 RESULTS_FOLDER = os.path.join(PROJECT_FOLDER, "results")
 sys.path.append(RESULTS_FOLDER)
 
-PLUGINS_FOLDER = os.path.join(PROJECT_FOLDER, "detectors")
+PLUGINS_FOLDER = os.path.join(PROJECT_FOLDER, "Detectors")
+sys.path.append(PLUGINS_FOLDER)
+
 UPX_PATH = "/usr/local/bin/upx"

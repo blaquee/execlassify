@@ -23,5 +23,6 @@ class PackerDetector(Detector):
             return result
 
         if len(matches) > 0:
-            result['Result'] = str(matches[0])
+            result['Result'] = list(str(matches[0]))
             result['Name'] = 'PackerDetector'
+            result['Folder'] = 'packed'

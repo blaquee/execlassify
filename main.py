@@ -89,13 +89,19 @@ def main():
     parser.add_argument("-i", "--input", help="Input string, can be a file, url for plugin processing", required=False)
 
     args = parser.parse_args()
+
     packed_files = dict()
     threat_info = dict()
     file_list = list()
+    detector_plugins = list()
 
     # Set up Results folder
     results_path = config.RESULTS_FOLDER
     make_directory(results_path)
+
+    # load detector plugins
+    detector_plugins = load_detectors(config.PLUGINS_FOLDER)
+    print "Detetor Plugins available:\n{}".format(detector_plugins)
 
     if args.tenant:
         processing_path = os.path.join(results_path, args.tenant)
@@ -103,6 +109,10 @@ def main():
     else:
         processing_path = os.path.join(results_path, time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime()))
         make_directory(processing_path)
+
+    # create sub path for detectors
+    detector_results = os.path.join(processing_path, "detectors")
+    make_directory(detector_results)
 
     packed_path = os.path.join(processing_path, "packed")
     make_directory(packed_path)
@@ -121,22 +131,30 @@ def main():
                 continue
 
             threat_info[files] = list()
-            # overlay, possible setup file
-            for f in file_list:
 
-                if is_overlay(f):
-                    threat_info[files].append({"result":"overlay"})
-                    try:
-                        copy2(f, installer_path)
-                    except:
-                        pass
+        for f in file_list:
+            for name in detector_plugins:
+                detector = detector_plugins[name](f)
 
-                res, match = is_packed(f)
+                # TODO: Add can_process method to check if detector can process current input
+                result = detector.detect()
+                if not result:
+                    continue
+                threat_info[f].append(result)
 
-            # if file packed, place in packed dictionary
-                if res:
-                    threat_info[files].append(match)
-                    packed_files[files] = match
+        # overlay, possible setup file
+        for f in file_list:
+            if is_overlay(f):
+                threat_info[files].append({"result":"overlay"})
+                try:
+                    copy2(f, installer_path)
+                except:
+                    pass
+            res, match = is_packed(f)
+        # if file packed, place in packed dictionary
+            if res:
+                threat_info[files].append(match)
+                packed_files[files] = match
 
     for k, v in threat_info.iteritems():
         # copy files to packed folder
