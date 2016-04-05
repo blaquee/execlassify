@@ -3,7 +3,7 @@ import "pe"
 rule nullsoft
 {
     strings:
-        $nullsoft = "NullSoftInst2" ascii
+        $nullsoft = "NullsoftInst2" ascii
     condition:
         (pe.characteristics & pe.EXECUTABLE_IMAGE) and $nullsoft
 }
