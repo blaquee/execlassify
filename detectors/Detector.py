@@ -16,3 +16,6 @@ class Detector(object):
 
     def detect(self):
         pass
+
+    def can_process(self):
+        return False

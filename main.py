@@ -100,7 +100,7 @@ def main():
 
     # load detector plugins
     detector_plugins = load_detectors(config.PLUGINS_FOLDER)
-    print "Detetor Plugins available:\n{}".format(detector_plugins)
+    print "Detector Plugins available:\n{}".format(detector_plugins)
 
     if args.tenant:
         processing_path = os.path.join(results_path, args.tenant)
@@ -124,23 +124,21 @@ def main():
     # directory sanity check
     if os.path.isdir(args.dir):
         for files in abs_file_paths(args.dir):
-            try:
-                # load all PE files in directory and populate our input file list
-                file_list.append(pefile.PE(files, fast_load=True))
-            except:
-                print "Error loading {}..is it a PE?".format(files)
-                continue
-
             threat_info[files] = list()
 
             for name in detector_plugins:
                 # Call the detectors constructor
                 detector = detector_plugins[name](files)
 
-                # TODO: Add can_process method to check if detector can process current input
+                if not detector.can_process():
+                    # this detector doesnt want this input, skip it
+                    continue
+
                 result = detector.detect()
                 if not result:
+                    # there were no results for this input
                     continue
+
                 threat_info[files].append(result)
         '''
         # overlay, possible setup file
