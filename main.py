@@ -133,28 +133,15 @@ def main():
 
             threat_info[files] = list()
 
-        # detectors populate the threat_info dictionary with results.
-        # The results is a list of dictionaries the attempt to explain what was detected.
-        '''
-            input -> [
-                        detector -> {   'Name': Name of Detector,
-                                        'Result' : [ list of results returned by detector],
-                                        'Sub-Folder': Optional string to organize file in result subfolder (might remove this)
-                                        ,etc...
-                                    }
-                    ]
-        '''
-
-        for f in file_list:
             for name in detector_plugins:
                 # Call the detectors constructor
-                detector = detector_plugins[name](f)
+                detector = detector_plugins[name](files)
 
                 # TODO: Add can_process method to check if detector can process current input
                 result = detector.detect()
                 if not result:
                     continue
-                threat_info[f].append(result)
+                threat_info[files].append(result)
         '''
         # overlay, possible setup file
         for f in file_list:
