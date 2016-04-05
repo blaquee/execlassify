@@ -31,6 +31,11 @@ rule has_manifest
 rule Inno
 {
     meta:
+        author = "Greg Lindor"
+        author_email = "glindor@cylance.com"
+        date = "2016-04-05"
+        classification = "PUP"
+        subclass = "Other"
         
     strings:
         $inno1 = "Inno Setup Setup Data" ascii
