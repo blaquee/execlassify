@@ -36,10 +36,10 @@ rule Inno
         date = "2016-04-05"
         classification = "PUP"
         subclass = "Other"
-        
+
     strings:
-        $inno1 = "Inno Setup Setup Data" ascii
-        $inno2 = "Inno Setup Messages" ascii
+        $inno1 = "Inno Setup Setup Data" ascii wide
+        $inno2 = "Inno Setup Messages" ascii wide
         $inno3 = "JR.Inno.Setup" wide ascii
     condition:
         (pe.characteristics & pe.EXECUTABLE_IMAGE) and has_manifest and (any of ($inno*))
