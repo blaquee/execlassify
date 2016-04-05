@@ -48,36 +48,6 @@ def abs_file_paths(directory):
             yield os.path.abspath(os.path.join(dirpath, f))
 
 
-def un_upx(packed_file):
-    pass
-
-
-def is_packed(pe_file):
-    global sig
-
-    matches = sig.match(pe_file, ep_only=True)
-
-    if not matches:
-        return False, ""
-    else:
-        if len(matches) > 0:
-            return True, str(matches[0])
-
-def is_nullsoft(pe_file):
-    pass
-
-
-# currently only checks for overlay. NullSoft also seems to always
-# have a section named .ndata with a VirtualSize of 0x00008000, but have to
-# get a larger sample set to be sure
-def is_overlay(pe_file):
-    pe_file.full_load()
-    if pe_file.get_overlay_data_start_offset() > 0:
-        return True
-
-    return False
-
-
 def main():
     # log_file = os.path.join(config.LOGS_FOLDER, "stdout.log")
     # sys.stdout = open(log_file, "a")
