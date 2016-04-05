@@ -1,11 +1,24 @@
 import "pe"
 
-rule nullsoft
-{
-    strings:
-        $nullsoft = "NullsoftInst2" ascii
-    condition:
-        (pe.characteristics & pe.EXECUTABLE_IMAGE) and $nullsoft
+rule NSIS {
+
+  meta:
+    author = "Brad Arndt"
+    author_email = "barndt@cylance.com"
+    date = "2016-04-05"
+    classification = "PUP"
+    subclass = "Other"
+    
+  strings:
+    $a = "NullsoftInst" wide ascii
+    $b = "NSIS Error" wide ascii
+    $c = "nsis.sf.net" wide ascii
+    $d = "Nullsoft.NSIS.exehead" wide ascii
+    $e = "Error launching installer" wide ascii
+    $f = "Installer integrity check has failed. Common causes include" wide ascii
+    
+  condition:
+    (pe.characteristics & pe.EXECUTABLE_IMAGE) and 5 of them
 }
 
 rule has_manifest
@@ -17,6 +30,8 @@ rule has_manifest
 
 rule Inno
 {
+    meta:
+        
     strings:
         $inno1 = "Inno Setup Setup Data" ascii
         $inno2 = "Inno Setup Messages" ascii
