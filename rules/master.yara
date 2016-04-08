@@ -1,5 +1,32 @@
 import "pe"
 
+rule UPXGeneric
+{
+    meta:
+        author = "Kevin Finnigin"
+        author_email = "kfinnigin@cylance.com"
+        date = "2016-03-28"
+
+    condition:
+        for any i in (0..pe.number_of_sections-1):
+            (pe.sections[i].name contains "UPX0" and pe.sections[i+1].name contains "UPX1")
+}
+
+rule AutoIt {
+    meta:
+        author = "Kevin Finnigin"
+        author_email = "kfinnigin@cylance.com"
+        date = "2016-03-29"
+        Classification = "PUP"
+        Subclass = "Scripting Tool"
+
+    strings:
+        $a = {A3 48 4B BE 98 6C 4A A9 99 4C 53 0A 86 D6 48 7D}
+        $b = "AU3!EA06"
+
+    condition:
+        $a and #b == 2 and (@a[1] + 16 == @b[1]) and UPXGeneric
+}
 rule NSIS {
 
   meta:
