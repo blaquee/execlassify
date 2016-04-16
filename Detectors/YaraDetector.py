@@ -9,8 +9,8 @@ rules_dir = os.path.join(config.PROJECT_FOLDER, "rules")
 
 class YaraScanner(Detector):
 
-    def __init__(self, input_file, read_file=True):
-        super(self.__class__, self).__init__(self, input_file, read_file)
+    def __init__(self, input, process_input=True):
+        super(self.__class__, self).__init__(self, input, process_input)
         self.rules_file = os.path.join(rules_dir, "master.yara")
         self.rule_compiled = None
         self.file_hash = hashlib.sha256(self.file_data).hexdigest()
