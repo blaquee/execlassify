@@ -22,6 +22,8 @@ class YaraScanner(Detector):
         scan_results = self.rule_compiled.match(self.file_path)
         for res in scan_results:
             print "Hit = {}".format(str(res.rule))
+            result['result'] = list(str(res.rule))
+            return result
 
 
     def can_process(self):
