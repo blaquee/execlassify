@@ -12,13 +12,14 @@ rule UPXGeneric
             (pe.sections[i].name contains "UPX0" and pe.sections[i+1].name contains "UPX1")
 }
 
-rule AutoIt {
+rule AutoIt
+{
     meta:
         author = "Kevin Finnigin"
         author_email = "kfinnigin@cylance.com"
         date = "2016-03-29"
-        Classification = "PUP"
-        Subclass = "Scripting Tool"
+        classification = "PUP"
+        subclass = "Scripting Tool"
 
     strings:
         $a = {A3 48 4B BE 98 6C 4A A9 99 4C 53 0A 86 D6 48 7D}
@@ -27,7 +28,8 @@ rule AutoIt {
     condition:
         $a and #b == 2 and (@a[1] + 16 == @b[1]) and UPXGeneric
 }
-rule NSIS {
+rule NSIS
+{
 
   meta:
     author = "Brad Arndt"
