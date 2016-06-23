@@ -8,9 +8,8 @@ rules_dir = os.path.join(config.PROJECT_FOLDER, "rules")
 
 
 class YaraScanner(Detector):
-
-    def __init__(self, input_file, read_file=True):
-        super(self.__class__, self).__init__(self, input_file, read_file)
+    def __init__(self, input_file):
+        super(self.__class__, self).__init__(self, input_file, True)
         self.rules_file = os.path.join(rules_dir, "master.yara")
         self.rule_compiled = None
         self.file_hash = hashlib.sha256(self.file_data).hexdigest()
@@ -22,7 +21,7 @@ class YaraScanner(Detector):
         scan_results = self.rule_compiled.match(self.file_path)
         for res in scan_results:
             print "Hit = {}".format(str(res.rule))
-
+            result["result"] = str(res.rule)
 
     def can_process(self):
         if not os.path.isfile(self.file_path):

@@ -129,7 +129,7 @@ def main():
     for k, v in threat_info.iteritems():
         for entries in v:
             for key, value in entries.iteritems():
-                print "File:{}\n\tDetector:{}\nResult:{}\n\n".format(k, key,)
+                print "File:{}\n\tDetector:{}\nResult:{}\n\n".format(k, key, str(value))
 
 
 if __name__ == '__main__':
